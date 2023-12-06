@@ -16,7 +16,7 @@ const ArrowButton = styled.button<{ pos: "left" | "right" }>`
   padding: 8px 12px;
   font-size: 48px;
   font-weight: bold;
-  background: transparent;
+  background-color: transparent;
   color: #fff;
   border: none;
   margin: 0;
@@ -28,7 +28,7 @@ const ArrowButton = styled.button<{ pos: "left" | "right" }>`
         `
       : css`
           right: 0;
-        `}
+        `};
 `;
 
 const CarouselList = styled.ul`
@@ -80,27 +80,18 @@ const banners = [
 
 const Carousel = () => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
-  const [isFocused, setIsFoused] = useState<boolean>(false);
+  const [isFocused, setIsFocused] = useState<boolean>(false);
 
-  const handleNext = () => {
-    setActiveIndex((prev) => (activeIndex + 1) % banners.length);
-  };
+  const handleNext = () =>
+    setActiveIndex((activeIndex) => (activeIndex + 1) % banners.length);
+  const handlePrev = () =>
+    setActiveIndex(
+      (activeIndex) => (activeIndex - 1 + banners.length) % banners.length
+    );
+  const handleGoTo = (index: number) => setActiveIndex(index);
 
-  const handlePrev = () => {
-    setActiveIndex((prev) => prev - 1 + banners.length);
-  };
-
-  const goTo = (idx: number) => {
-    setActiveIndex(idx);
-  };
-
-  const handleMouseEnter = () => {
-    setIsFoused(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsFoused(false);
-  };
+  const handleMouseEnter = () => setIsFocused(true);
+  const handleMouseLeave = () => setIsFocused(false);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -112,32 +103,41 @@ const Carousel = () => {
     return () => {
       clearInterval(intervalId);
     };
-  }, [isFocused, handleNext]);
+  }, [isFocused]);
 
   return (
     <Base onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       <Container>
-        <ArrowButton pos="left" onClick={handlePrev}>
-          <RiArrowDropLeftLine />
-        </ArrowButton>
+        {banners.length && (
+          <ArrowButton pos="left" onClick={handlePrev}>
+            <RiArrowDropLeftLine />
+          </ArrowButton>
+        )}
         <CarouselList>
-          {banners.map((banner, idx) => (
-            <CarouselListItem key={idx} activeIndex={activeIndex}>
-              <img src={banner} alt="배너이미지" />
+          {banners.map((url, index) => (
+            <CarouselListItem activeIndex={activeIndex} key={index}>
+              <img src={url} alt="" />
             </CarouselListItem>
           ))}
         </CarouselList>
-        <ArrowButton pos="right" onClick={handleNext}>
-          <RiArrowDropRightLine />
-        </ArrowButton>
+        {banners.length && (
+          <ArrowButton pos="right" onClick={handleNext}>
+            <RiArrowDropRightLine />
+          </ArrowButton>
+        )}
       </Container>
-      <Nav>
-        {Array.from({ length: banners.length }).map((_, idx) => (
-          <NavItem key={idx} onClick={() => goTo(idx)}>
-            <NavButton isActive={activeIndex === idx} />
-          </NavItem>
-        ))}
-      </Nav>
+      {banners.length && (
+        <Nav>
+          {Array.from({ length: banners.length }).map((_, index) => (
+            <NavItem key={index}>
+              <NavButton
+                isActive={activeIndex === index}
+                onClick={() => handleGoTo(index)}
+              />
+            </NavItem>
+          ))}
+        </Nav>
+      )}
     </Base>
   );
 };
